@@ -36,4 +36,8 @@ public class Mountain {
     public void setHeight(int newHeight){
         height=newHeight;
     }
+
+    public String getName(){
+    return name;
+    }
 }

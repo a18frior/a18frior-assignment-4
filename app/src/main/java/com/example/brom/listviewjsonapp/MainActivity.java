@@ -4,6 +4,15 @@ import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
+import android.widget.Toast;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -11,6 +20,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 
 // Create a new class, Mountain, that can hold your JSON data
@@ -25,6 +36,8 @@ import java.net.URL;
 
 
 public class MainActivity extends AppCompatActivity {
+
+    ArrayList<Mountain> berg2=new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -97,25 +110,66 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(String o) {
             super.onPostExecute(o);
-            Log.d("Jennas log",o);
-            ArrayList<String> berg = new ArrayList<String>(Arrays.asList(mountainNames));
+            String s1= o;
+            Log.d("Jennas log",s1);
+            String s = new String("{\"name\": \"Hilding\",\"age\": 101,\"address\": {\"streetAddress\": \"Skogsvägen 7\",\"city\": \"Götene\"},\"phoneNumber\": [{\"type\": \"home\",\"number\": \"0511-12345\"},{\"type\": \"mobil\",\"number\": \"070-11 22 123\"}]}");
 
-            ArrayList<Mountain> berg2=new ArrayList<>();
+            try {
+// Ditt JSON-objekt som Java
+                Log.d("jennas log", "okej1");
+                JSONArray mountains = new JSONArray(s1);
+
+                //JSONObject json1 = new JSONObject(s);
+                Log.d("jennas log", "okej2");
+// När vi har ett JSONObjekt kan vi hämta ut dess beståndsdelar
+//                JSONArray a = json1.getJSONArray("location");
+                for (int i = 0; i < mountains.length(); i++) {
+                    JSONObject json1 = mountains.getJSONObject(i);
+                    String location = json1.getString("location");
+                    Log.d("jennas log", "" + location);
+                    String name = json1.getString("name");
+                    Log.d("jennas log", "" + name);
+                    int height = json1.getInt("size");
+                    Log.d("jennas log", "" + height);
+                    Mountain m1 = new Mountain(name, location, height);
+                    berg2.add(m1);
+                    Log.d("jennas log", "okej3");
+                    JSONObject json1 = mountains.getJSONObject(i);
+                    String location = json1.getString("location");
+                }
+                } catch(Exception e){
+                    Log.d("jennas log", "E:" + e.getMessage());
+                }
+
+            Log.d("jennas log","berg is ok");
+            ArrayList<String> berg = new ArrayList();
+            for (int i=0; i<berg2.size();i++){
+                berg.add(berg2.get(i).getName());
+            }
+
+            String temp="";
+            for (int i=0; i<berg.size();i++){
+                temp+= berg.get(i) + " ";
+            }
+            Log.d("jennas log", "berg has: " + temp);
 
 
 
-                berg2.add(m);
+
+                /*berg2.add(m);
                 berg2.add(m2);
-                berg2.add(m3);
+                berg2.add(m3);*/
 
-                ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, R.layout.list_item_textview, R.id.fridasItem, berg);
+                ArrayAdapter<String> adapter = new ArrayAdapter<String>(MainActivity.this, R.layout.listview, R.id.fridasItem, berg);
                 ListView lista= findViewById(R.id.fridaslist);
                 lista.setAdapter(adapter);
-            // This code executes after we have received our data. The String object o holds
-            // the un-parsed JSON string or is null if we had an IOException during the fetch.
 
-            // Implement a parsing code that loops through the entire JSON and creates objects
-            // of our newly created Mountain class.
+            lista.setOnItemClickListener(new AdapterView.OnItemClickListener(){
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    Toast.makeText(getApplicationContext(), berg2.get(position).info(), Toast.LENGTH_LONG).show();
+                }
+            });
+
         }
     }
 }
