@@ -30,6 +30,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        new FetchData().execute();
     }
 
     private class FetchData extends AsyncTask<Void,Void,String>{
@@ -45,7 +46,7 @@ public class MainActivity extends AppCompatActivity {
 
             try {
                 // Construct the URL for the Internet service
-                URL url = new URL("_ENTER_THE_URL_TO_THE_PHP_SERVICE_SERVING_JSON_HERE_");
+                URL url = new URL("http://wwwlab.iit.his.se/brom/kurser/mobilprog/dbservice/admin/getdataasjson.php?type=brom");
 
                 // Create the request to the PHP-service, and open the connection
                 urlConnection = (HttpURLConnection) url.openConnection();
@@ -64,7 +65,7 @@ public class MainActivity extends AppCompatActivity {
                 String line;
                 while ((line = reader.readLine()) != null) {
                     // Since it's JSON, adding a newline isn't necessary (it won't affect parsing)
-                    // But it does make debugging a *lot* easier if you print out the completed
+                    // But it does make debugging a lot easier if you print out the completed
                     // buffer for debugging.
                     buffer.append(line + "\n");
                 }
@@ -96,6 +97,20 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(String o) {
             super.onPostExecute(o);
+            Log.d("Jennas log",o);
+            ArrayList<String> berg = new ArrayList<String>(Arrays.asList(mountainNames));
+
+            ArrayList<Mountain> berg2=new ArrayList<>();
+
+
+
+                berg2.add(m);
+                berg2.add(m2);
+                berg2.add(m3);
+
+                ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, R.layout.list_item_textview, R.id.fridasItem, berg);
+                ListView lista= findViewById(R.id.fridaslist);
+                lista.setAdapter(adapter);
             // This code executes after we have received our data. The String object o holds
             // the un-parsed JSON string or is null if we had an IOException during the fetch.
 
@@ -104,4 +119,3 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 }
-
