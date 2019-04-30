@@ -1,15 +1,22 @@
 package com.example.brom.listviewjsonapp;
 
+import org.json.JSONArray;
+
+import java.lang.reflect.Array;
+
 public class Mountain {
 
     private String name;
     private String location;
     private int height;
+    private String img;
 
-    public Mountain(String inName, String inLocation, int inHeight){
+    public Mountain(String inName, String inLocation, int inHeight, String inImg){
         name=inName;
         location=inLocation;
         height=inHeight;
+        img=inImg;
+
     }
 
     public Mountain(String inName){
@@ -30,7 +37,13 @@ public class Mountain {
         str+= " and has an height of ";
         str+= Integer.toString(height);
         str+="m. ";
+
         return str;
+    }
+
+    public String bild(){
+        String bild =img;
+        return bild;
     }
 
     public void setHeight(int newHeight){
@@ -38,6 +51,7 @@ public class Mountain {
     }
 
     public String getName(){
-    return name;
+        String getname= name+ "\n"+ location + "\n"+ height+ "m";
+    return getname;
     }
 }

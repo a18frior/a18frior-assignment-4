@@ -4,15 +4,29 @@ import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
+import android.webkit.WebView;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import java.sql.Array;
+import java.util.Arrays;
+import android.content.Intent;
+import android.support.v7.widget.Toolbar;
+
+
+import java.util.ArrayList;
+import java.util.Arrays;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+
+
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -20,8 +34,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
+
+
 
 
 // Create a new class, Mountain, that can hold your JSON data
@@ -36,15 +50,13 @@ import java.util.Arrays;
 
 
 public class MainActivity extends AppCompatActivity {
+    private static final String LOG_TAG =
+            MainActivity.class.getSimpleName();
 
-    ArrayList<Mountain> berg2=new ArrayList<>();
+    ArrayList<Mountain> berg2 =new ArrayList<>();
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        new FetchData().execute();
-    }
+
+
 
     private class FetchData extends AsyncTask<Void,Void,String>{
         @Override
@@ -110,33 +122,37 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(String o) {
             super.onPostExecute(o);
-            String s1= o;
+            String s1= o
+                        .replace("\"{\\\"img", "{\\\"img")
+                        .replace("\\\"}\"", "\\\"}")
+                        .replace("\\\"", "\"");
+
             Log.d("Jennas log",s1);
-            String s = new String("{\"name\": \"Hilding\",\"age\": 101,\"address\": {\"streetAddress\": \"Skogsvägen 7\",\"city\": \"Götene\"},\"phoneNumber\": [{\"type\": \"home\",\"number\": \"0511-12345\"},{\"type\": \"mobil\",\"number\": \"070-11 22 123\"}]}");
 
             try {
-// Ditt JSON-objekt som Java
+
                 Log.d("jennas log", "okej1");
                 JSONArray mountains = new JSONArray(s1);
-
-                //JSONObject json1 = new JSONObject(s);
                 Log.d("jennas log", "okej2");
-// När vi har ett JSONObjekt kan vi hämta ut dess beståndsdelar
-//                JSONArray a = json1.getJSONArray("location");
+
                 for (int i = 0; i < mountains.length(); i++) {
                     JSONObject json1 = mountains.getJSONObject(i);
+                    JSONObject auxdata = json1.getJSONObject("auxdata");
+                    String img = auxdata.getString("img");
+                    Log.d("img", img);
+
+
                     String location = json1.getString("location");
-                    Log.d("jennas log", "" + location);
                     String name = json1.getString("name");
                     Log.d("jennas log", "" + name);
                     int height = json1.getInt("size");
                     Log.d("jennas log", "" + height);
-                    Mountain m1 = new Mountain(name, location, height);
+                    Mountain m1 = new Mountain(name, location, height,img);
                     berg2.add(m1);
                     Log.d("jennas log", "okej3");
-                    JSONObject json1 = mountains.getJSONObject(i);
-                    String location = json1.getString("location");
+
                 }
+
                 } catch(Exception e){
                     Log.d("jennas log", "E:" + e.getMessage());
                 }
@@ -164,12 +180,53 @@ public class MainActivity extends AppCompatActivity {
                 ListView lista= findViewById(R.id.fridaslist);
                 lista.setAdapter(adapter);
 
-            lista.setOnItemClickListener(new AdapterView.OnItemClickListener(){
+            lista.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                    Toast.makeText(getApplicationContext(), berg2.get(position).info(), Toast.LENGTH_LONG).show();
+                    Intent appInfo = new Intent(MainActivity.this, MountainDetailsActivity.class);
+
+                    appInfo.putExtra("berget", berg2.get(position).info());
+                    appInfo.putExtra("berget2",berg2.get(position).bild() );
+
+
+
+
+                    startActivity(appInfo);
                 }
             });
 
         }
     }
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        new FetchData().execute();
+       // Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        //setSupportActionBar(toolbar);
+
+
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        int id = item.getItemId();
+
+        //noinspection SimplifiableIfStatement
+        if (id == R.id.action_refresh) {
+            berg2.clear();
+            new FetchData().execute();
+            return true;
+        }
+
+
+        return super.onOptionsItemSelected(item);
+    }
+
 }
