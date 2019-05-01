@@ -1,9 +1,15 @@
 package com.example.brom.listviewjsonapp;
 
+import android.content.Context;
 import android.os.AsyncTask;
+import android.widget.SimpleAdapter;
+
+import java.util.ArrayList;
+import java.util.HashMap;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -11,6 +17,7 @@ import android.webkit.WebView;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.sql.Array;
@@ -38,22 +45,14 @@ import java.net.URL;
 
 
 
-// Create a new class, Mountain, that can hold your JSON data
-
-// Create a ListView as in "Assignment 1 - Toast and ListView"
-
-// Retrieve data from Internet service using AsyncTask and the included networking code
-
-// Parse the retrieved JSON and update the ListView adapter
-
-// Implement a "refresh" functionality using Android's menu system
-
-
 public class MainActivity extends AppCompatActivity {
     private static final String LOG_TAG =
             MainActivity.class.getSimpleName();
 
     ArrayList<Mountain> berg2 =new ArrayList<>();
+    ArrayList<HashMap<String,String>> berg= new ArrayList<HashMap<String,String>>();
+    private SimpleAdapter adapter2;
+
 
 
 
@@ -61,12 +60,11 @@ public class MainActivity extends AppCompatActivity {
     private class FetchData extends AsyncTask<Void,Void,String>{
         @Override
         protected String doInBackground(Void... params) {
-            // These two variables need to be declared outside the try/catch
-            // so that they can be closed in the finally block.
+
             HttpURLConnection urlConnection = null;
             BufferedReader reader = null;
 
-            // Will contain the raw JSON response as a Java string.
+
             String jsonStr = null;
 
             try {
@@ -89,14 +87,12 @@ public class MainActivity extends AppCompatActivity {
 
                 String line;
                 while ((line = reader.readLine()) != null) {
-                    // Since it's JSON, adding a newline isn't necessary (it won't affect parsing)
-                    // But it does make debugging a lot easier if you print out the completed
-                    // buffer for debugging.
+
                     buffer.append(line + "\n");
                 }
 
                 if (buffer.length() == 0) {
-                    // Stream was empty.  No point in parsing.
+
                     return null;
                 }
                 jsonStr = buffer.toString();
@@ -158,27 +154,22 @@ public class MainActivity extends AppCompatActivity {
                 }
 
             Log.d("jennas log","berg is ok");
-            ArrayList<String> berg = new ArrayList();
+            HashMap<String,String> item;
             for (int i=0; i<berg2.size();i++){
-                berg.add(berg2.get(i).getName());
+
+                item = new HashMap<>();
+                item.put( "line1", berg2.get(i).getName());
+                item.put( "line2", berg2.get(i).getLocation());
+                item.put( "line3", berg2.get(i).getHeight());
+                berg.add( item );
             }
+            adapter2 = new SimpleAdapter(MainActivity.this, berg,
+                    R.layout.listview,
+                    new String[] { "line1","line2","line3" },
+                    new int[] {R.id.line_a, R.id.line_b, R.id.line_c});
+            ListView lista= findViewById(R.id.fridaslist);
+            lista.setAdapter(adapter2);
 
-            String temp="";
-            for (int i=0; i<berg.size();i++){
-                temp+= berg.get(i) + " ";
-            }
-            Log.d("jennas log", "berg has: " + temp);
-
-
-
-
-                /*berg2.add(m);
-                berg2.add(m2);
-                berg2.add(m3);*/
-
-                ArrayAdapter<String> adapter = new ArrayAdapter<String>(MainActivity.this, R.layout.listview, R.id.fridasItem, berg);
-                ListView lista= findViewById(R.id.fridaslist);
-                lista.setAdapter(adapter);
 
             lista.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {

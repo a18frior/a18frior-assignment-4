@@ -51,7 +51,16 @@ public class Mountain {
     }
 
     public String getName(){
-        String getname= name+ "\n"+ location + "\n"+ height+ "m";
+        String getname= name;
     return getname;
+    }
+
+    public String getLocation(){
+        String getloc= location ;
+        return getloc;
+    }
+    public String getHeight(){
+        String getheight= height+ "m" ;
+        return getheight;
     }
 }
